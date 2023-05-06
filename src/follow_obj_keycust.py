@@ -65,13 +65,6 @@ def proportional_control(robot_pos, robot_orn, target_pos, gain):
 time_step = 1 / 120
 gain = 50
 start_time = time.time()
-
-# Set lateral friction for R2D2's wheels
-# p.changeDynamics(robot, 2, lateralFriction=1)
-# p.changeDynamics(robot, 3, lateralFriction=1)
-# p.changeDynamics(robot, 6, lateralFriction=1)
-# p.changeDynamics(robot, 7, lateralFriction=1)
-
 target_pos = [2, 2, 1]
 p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
