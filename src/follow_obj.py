@@ -77,8 +77,8 @@ p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
 while True:
     # update target
-    elapsed_time = (time.time() - start_time) / 8
-    target_pos = [math.sin(elapsed_time), math.cos(elapsed_time), 1]
+    elapsed_time = (time.time() - start_time) / 32
+    target_pos = [2*math.sin(elapsed_time), 2*math.cos(elapsed_time), 1]
     p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
     # get robot state
