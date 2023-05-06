@@ -23,7 +23,7 @@ target_obj = p.createMultiBody(
 
 # set camera
 p.resetDebugVisualizerCamera(
-    cameraDistance=5.0, cameraYaw=0, cameraPitch=-90, cameraTargetPosition=[0, 0, 0]
+    cameraDistance=5.0, cameraYaw=180, cameraPitch=-90, cameraTargetPosition=[0, 0, 0]
 )
 
 # obtain robot joints information
@@ -75,10 +75,33 @@ start_time = time.time()
 target_pos = [2, 2, 1]
 p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
+dx, dy = 0, 0
 while True:
-    # update target
+    # capture keyboard events
+    keys = p.getKeyboardEvents()
+    for k, v in keys.items():
+        if k == p.B3G_RIGHT_ARROW and (v & p.KEY_WAS_TRIGGERED):
+            dx = 0.5
+        if k == p.B3G_RIGHT_ARROW and (v & p.KEY_WAS_RELEASED):
+            dx = 0
+        if k == p.B3G_LEFT_ARROW and (v & p.KEY_WAS_TRIGGERED):
+            dx = -0.5
+        if k == p.B3G_LEFT_ARROW and (v & p.KEY_WAS_RELEASED):
+            dx = 0
+
+        if k == p.B3G_UP_ARROW and (v & p.KEY_WAS_TRIGGERED):
+            dy = 0.5
+        if k == p.B3G_UP_ARROW and (v & p.KEY_WAS_RELEASED):
+            dy = 0
+        if k == p.B3G_DOWN_ARROW and (v & p.KEY_WAS_TRIGGERED):
+            dy = -0.5
+        if k == p.B3G_DOWN_ARROW and (v & p.KEY_WAS_RELEASED):
+            dy = 0
+
+    # update target position by keyboard control
     elapsed_time = (time.time() - start_time) / 32
-    target_pos = [2*math.sin(elapsed_time), 2*math.cos(elapsed_time), 1]
+    # target_pos = [2 * math.sin(elapsed_time), 2 * math.cos(elapsed_time), 1]
+    target_pos = [target_pos[0] + dx, target_pos[1] + dy, 1]
     p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
     # get robot state
@@ -87,8 +110,12 @@ while True:
     # apply control
     # apply control
     left_vel, right_vel = proportional_control(robot_pos, robot_orn, target_pos, gain)
-    p.setJointMotorControl2(robot, 0, p.VELOCITY_CONTROL, targetVelocity=left_vel, force=1000)
-    p.setJointMotorControl2(robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000)
+    p.setJointMotorControl2(
+        robot, 0, p.VELOCITY_CONTROL, targetVelocity=left_vel, force=1000
+    )
+    p.setJointMotorControl2(
+        robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000
+    )
 
     # step simulation
     p.stepSimulation()
