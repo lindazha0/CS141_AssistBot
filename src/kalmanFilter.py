@@ -30,6 +30,7 @@ def create_kalman_filter(dt):
 
     # Measurement noise covariance matrix
     kf.R = np.eye(2) * 5
+    kf.dt = dt
 
     return kf
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
 
     # Predict the future position
     next_time_interval = 1  # Time step into the future
-    position, velocity, acceleration = kf.x[:3], kf.x[2:4], kf.x[4:]
+    position, velocity, acceleration = kf.x[:2], kf.x[2:4], kf.x[4:]
     predicted_x = (
         position[0] + velocity[0] * next_time_interval + 0.5 * acceleration[0] * next_time_interval**2
     )

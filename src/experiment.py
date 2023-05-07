@@ -9,11 +9,12 @@ from control import *
 from kalmanFilter import create_kalman_filter
 
 DISTANCE_THRESHOLD = 0.5
-REACH_THRESHOLD = 32 # terminate after 32 seconds of reaching target
+REACH_THRESHOLD = 32    # terminate after 32 seconds of reaching target
+AGENT = "predictive"      # "baseline" or "predictive"
+TIME_STEP = 1 / 120
+KEYBOARD_CONTROL = False
 ORBIT_RADIUS_X = 1.5
 ORBIT_RADIUS_Y = 2
-AGENT = "baseline" # "baseline" or "predictive"
-TIME_STEP = 1 / 120
 
 # connect to pybullet
 client = p.connect(p.GUI)
@@ -54,12 +55,12 @@ depth_camera_link_index = 31
 # run simulation
 gain = 50 # proportional control gain, or speed
 start_time = time.time()
-keyboard_control = True
 camera_T = 4 # camera update rate
-object_T = 40 # object update rate
+object_T = 60 # object update rate
 if AGENT == "predictive":
     filter = create_kalman_filter(TIME_STEP)
-    filter.x = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
+    filter.x = np.array([0, 0, 0, 0, 0, 0])
+    filter.dt = TIME_STEP
 
 while True:
     # update camera
@@ -69,7 +70,7 @@ while True:
 
     # update target
     elapsed_time = (time.time() - start_time) / object_T
-    target_pos = ut.move_object(elapsed_time, target_obj, keyboard_control)
+    target_pos = ut.move_object(elapsed_time, target_obj, KEYBOARD_CONTROL)
 
     # get robot state and apply control
     robot_pos, robot_orn = p.getBasePositionAndOrientation(robot)
