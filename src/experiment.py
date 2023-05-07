@@ -81,6 +81,7 @@ while True:
     ):
         hit_time += 1
     else:
+        hit_time = 0
         # move towards target
         if AGENT == "predictive":
             left_vel, right_vel = predict_control(robot_pos, robot_orn, target_pos, gain, filter)

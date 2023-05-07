@@ -1,7 +1,30 @@
 # CS141_AssistBot
 This repository is for final project of CS141: Probablistic Robotics at Tufts University, in 2023 Spring term.
 
-The proposal is to build a health-care robot, as a personanl assistant, to do some simple tasks for the elderly or disabled crowds. The robots are developed, trained, and tested in the PyBullet similation platform.
+The proposal is to build a health-care robot, as a personanl assistant, to do some simple tasks for the elderly or disabled crowds. The robots are developed, trained, and tested in the PyBullet similation platform. The main task of the mobile robot is to follow reach and closely follow a moving traget.
 
-### Implementation
-I 
+Here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
+
+### Simulation Implementation
+**Parameters Configuration**
+- Target Object
+  -  After loading the plane and TurtleBot as the robot, load the target object with a specified object name or `.urdf` file in `PyBullet_DATA`.
+- Target Object Movement
+  - In `experiment.py`, `KEYBOARD_CONTROL` defines the moving function for the target object -- if set `True`, you can use `UP/DOWN/LEFT/RIGHT` to control its movement. Otherwise it rotates clockwise in an oval orbit specified by `ORBIT_RADIUS_X`, `ORBIT_RADIUS_Y`.
+- Robot Movement
+  - In `experiment.py`, `AGENT` specifies using `baseline` or `predictive` motion control.
+- Others(Tuning)
+  - All other capital variables at the top of each file are customizable. However, to better tune the control function, below are recommended for adjusting:
+    - `AHEAD_TIME_STEPS` in `control.py`
+
+**Terminal Condition**
+- The termimating condition is when the robot keeps within `REACH_THRESHOLD` distance to the target for `REACH_THRESHOLD` time seps.
+- Therefore, for the criteria, we use the number of time steps for the robot to reach the terminating goal as the measurement of the robot performance.
+
+
+### Run Experiments
+Run the `experiment.py` under `/src` directory.
+```bash
+cd src
+python experiment
+```
