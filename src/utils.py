@@ -1,5 +1,8 @@
+# this file contains helper functions for the simulation
+# including loading robot and object, moving object, etc
 import pybullet as p
 import math
+
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32  # terminate after 32 seconds of reaching target

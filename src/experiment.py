@@ -1,3 +1,4 @@
+# This file contains the main loop of the simulation
 import pybullet as p
 import pybullet_data
 import time
@@ -10,16 +11,18 @@ from kalmanFilter import create_kalman_filter
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32    # terminate after 32 seconds of reaching target
-AGENT = "predictive"      # "baseline" or "predictive"
+AGENT = "predictive"    # "baseline" or "predictive"
 TIME_STEP = 1 / 120
+AHEAD_TIME_STEPS = 5    # for predictive control
 KEYBOARD_CONTROL = False
-ORBIT_RADIUS_X = 1.5
-ORBIT_RADIUS_Y = 2
+PRINT_JOINT_INFO = False
+OUTPUT_FILE = "../results/predict_time.csv"
 
 # connect to pybullet
-client = p.connect(p.GUI)
+# p.connect(p.GUI)
+p.connect(p.DIRECT)  # for non-graphical version
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
-p.setGravity(0, 0, -10)
+p.setGravity(0, 0, -9.87)
 
 # load plane, robot, and target
 plane = p.loadURDF("plane.urdf")
@@ -32,25 +35,14 @@ p.resetDebugVisualizerCamera(
 )
 
 # obtain robot joints information
-num_joints = p.getNumJoints(robot)
-for i in range(num_joints):
-    joint_info = p.getJointInfo(robot, i)
-    print(f"Joint index: {i}, Joint name: {joint_info[1].decode('utf-8')}")
+if PRINT_JOINT_INFO:
+    num_joints = p.getNumJoints(robot)
+    for i in range(num_joints):
+        joint_info = p.getJointInfo(robot, i)
+        print(f"Joint index: {i}, Joint name: {joint_info[1].decode('utf-8')}")
 
 # define criteria for the experiment
 hit_time, total_time = 0, 0
-
-
-# configure camera settings on turtlebot
-width = 320
-height = 240
-fov = 60
-near = 0.02
-far = 100
-
-# Set the camera link index
-rgb_camera_link_index = 28
-depth_camera_link_index = 31
 
 # run simulation
 gain = 50 # proportional control gain, or speed
@@ -61,6 +53,7 @@ if AGENT == "predictive":
     filter = create_kalman_filter(TIME_STEP)
     filter.x = np.array([0, 0, 0, 0, 0, 0])
     filter.dt = TIME_STEP
+    filter.AHEAD_TIME_STEPS = AHEAD_TIME_STEPS
 
 while True:
     # update camera
@@ -94,7 +87,8 @@ while True:
 
     # step simulation
     if hit_time >= REACH_THRESHOLD:
-        print(f"After {total_time-REACH_THRESHOLD} timesteps, reached target for {REACH_THRESHOLD} timesteps.")
+        open(OUTPUT_FILE, "a").write(f"{total_time}\n")
+        print(f"After {total_time} timesteps, reached goal of {REACH_THRESHOLD} timesteps.")
         break
     p.stepSimulation()
     time.sleep(TIME_STEP)

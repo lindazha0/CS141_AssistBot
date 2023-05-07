@@ -1,7 +1,6 @@
 import math
 import pybullet as p
 
-AHEAD_TIME_STEPS = 20
 
 # define control functions for robot
 def base_control(robot_pos, robot_orn, target_pos, gain):
@@ -35,7 +34,7 @@ def predict_object_position(target_pos, filter):
     estimated_pos = filter.x[:2]
 
     # predict object position
-    pos, vel, acc, dt = filter.x[:2], filter.x[2:4], filter.x[4:], filter.dt*AHEAD_TIME_STEPS
+    pos, vel, acc, dt = filter.x[:2], filter.x[2:4], filter.x[4:], filter.dt*filter.AHEAD_TIME_STEPS
     object_x = estimated_pos[0]+vel[0]*dt+0.5*acc[0]*dt**2
     object_y = estimated_pos[1]+vel[1]*dt+0.5*acc[1]*dt**2
     object_z = target_pos[2]
