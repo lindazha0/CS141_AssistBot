@@ -5,11 +5,15 @@ import math
 import numpy as np
 import utils as ut
 from sensors import connect_cameras
+from control import *
+from kalmanFilter import create_kalman_filter
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32 # terminate after 32 seconds of reaching target
 ORBIT_RADIUS_X = 1.5
 ORBIT_RADIUS_Y = 2
+AGENT = "baseline" # "baseline" or "predictive"
+TIME_STEP = 1 / 120
 
 # connect to pybullet
 client = p.connect(p.GUI)
@@ -18,7 +22,7 @@ p.setGravity(0, 0, -10)
 
 # load plane, robot, and target
 plane = p.loadURDF("plane.urdf")
-robot = ut.load_robot("turtlebot")
+robot = ut.load_robot()
 target_obj = ut.load_object("sphere")
 
 # set camera
@@ -35,34 +39,6 @@ for i in range(num_joints):
 # define criteria for the experiment
 hit_time, total_time = 0, 0
 
-# define control function for robot
-def proportional_control(robot_pos, robot_orn, target_pos, gain):
-    """Calculate wheel velocities for proportional control."""
-    global hit_time
-    # if close enough to target, stop
-    if (
-        math.sqrt(sum((robot_pos[i] - target_pos[i]) ** 2 for i in range(2)))
-        <= DISTANCE_THRESHOLD
-    ):
-        hit_time += 1
-        return 0, 0
-
-    # calculate linear and angular velocity required to reach target
-    delta = [target_pos[i] - robot_pos[i] for i in range(2)]  # delta x, delta y
-    forward_vel = gain * math.sqrt(sum(e**2 for e in delta))
-
-    # calculate angular velocity required to reach target
-    robot_yaw = p.getEulerFromQuaternion(robot_orn)[2]
-    angular_err = math.atan2(delta[1], delta[0]) - robot_yaw
-
-    # normalize to -pi to pi
-    angular_err = math.atan2(math.sin(angular_err), math.cos(angular_err))
-    angular_vel = gain * angular_err
-
-    # convert to wheel velocities
-    left_force = forward_vel - angular_vel
-    right_force = forward_vel + angular_vel
-    return left_force, right_force
 
 # configure camera settings on turtlebot
 width = 320
@@ -76,12 +52,14 @@ rgb_camera_link_index = 28
 depth_camera_link_index = 31
 
 # run simulation
-time_step = 1 / 120
 gain = 50 # proportional control gain, or speed
 start_time = time.time()
 keyboard_control = True
-camera_T = 8 # camera update rate
+camera_T = 4 # camera update rate
 object_T = 40 # object update rate
+if AGENT == "predictive":
+    filter = create_kalman_filter(TIME_STEP)
+    filter.x = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 while True:
     # update camera
@@ -95,16 +73,29 @@ while True:
 
     # get robot state and apply control
     robot_pos, robot_orn = p.getBasePositionAndOrientation(robot)
-    left_vel, right_vel = proportional_control(robot_pos, robot_orn, target_pos, gain)
-    p.setJointMotorControl2(robot, 0, p.VELOCITY_CONTROL, targetVelocity=left_vel, force=1000)
-    p.setJointMotorControl2(robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000)
+
+    # if close enough to target, stop
+    if (
+        math.sqrt(sum((robot_pos[i] - target_pos[i]) ** 2 for i in range(2))) <= DISTANCE_THRESHOLD
+    ):
+        hit_time += 1
+    else:
+        # move towards target
+        if AGENT == "predictive":
+            left_vel, right_vel = predict_control(robot_pos, robot_orn, target_pos, gain, filter)
+        elif AGENT == "baseline":
+            left_vel, right_vel = base_control(robot_pos, robot_orn, target_pos, gain)
+        else:
+            raise ValueError(f"Invalid agent type: {AGENT}, must be 'baseline' or 'predictive'")
+        p.setJointMotorControl2(robot, 0, p.VELOCITY_CONTROL, targetVelocity=left_vel, force=1000)
+        p.setJointMotorControl2(robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000)
 
     # step simulation
     if hit_time >= REACH_THRESHOLD:
         print(f"After {total_time-REACH_THRESHOLD} timesteps, reached target for {REACH_THRESHOLD} timesteps.")
         break
     p.stepSimulation()
-    time.sleep(time_step)
+    time.sleep(TIME_STEP)
 
 # close simulation
 p.disconnect()

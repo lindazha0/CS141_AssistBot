@@ -23,18 +23,18 @@ def load_robot(robo_name="turtlebot"):
 
 def load_object(obj_name="sphere", obj_pos=[1, 0, 0.1]):
     """Load object into simulation."""
-    available_objects = ["duck", "sphere"]
+    available_objects = ["duck_vhacd.urdf", "soccerball.urdf", "samurai.urdf", "block.urdf", "sphere"]
     assert obj_name in available_objects, "Object name not supported. Please choose from: {}".format(available_objects)
-    if obj_name == "duck":
-        obj_path = "duck_vhacd.urdf"
-        obj = p.loadURDF(obj_path, obj_pos)
-    elif obj_name == "sphere":
+
+    if obj_name == "sphere":
         obj_shape = p.createVisualShape(
             p.GEOM_SPHERE, radius=0.1, rgbaColor=[1, 0, 0, 1]
         )
         obj = p.createMultiBody(
             baseMass=0, baseVisualShapeIndex=obj_shape, basePosition=obj_pos
         )
+    else:
+        obj = p.loadURDF(obj_name, obj_pos)
     return obj
 
 
