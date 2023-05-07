@@ -3,6 +3,8 @@ import pybullet_data
 import time
 import math
 import numpy as np
+import utils as ut
+from sensors import connect_cameras
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32 # terminate after 32 seconds of reaching target
@@ -12,20 +14,12 @@ ORBIT_RADIUS_Y = 2
 # connect to pybullet
 client = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
-print("data path: ", pybullet_data.getDataPath())
 p.setGravity(0, 0, -10)
 
 # load plane, robot, and target
 plane = p.loadURDF("plane.urdf")
-robot = p.loadURDF(
-    "../data/turtlebot.urdf", [0, 0, 0], flags=p.URDF_USE_MATERIAL_COLORS_FROM_MTL,
-    physicsClientId=client
-)  # or will collide with ground
-# target = p.createVisualhape(p.GEOM_SPHERE, radius=0.1, rgbaColor=[1, 0, 0, 1])
-target_obj = p.loadURDF("duck_vhacd.urdf", [0, 0, 0.1])
-# target_obj = p.createMultiBody(
-#     baseMass=0, baseVisualShapeIndex=target, basePosition=[0, 0, 0.1]
-# )
+robot = ut.load_robot("turtlebot")
+target_obj = ut.load_object("sphere")
 
 # set camera
 p.resetDebugVisualizerCamera(
@@ -41,18 +35,10 @@ for i in range(num_joints):
 # define criteria for the experiment
 hit_time, total_time = 0, 0
 
-# define moving function for object
-def move_object(t, obj):
-    """Move object along an oval robit over time."""
-    target_pos = [ORBIT_RADIUS_X*math.sin(t), ORBIT_RADIUS_Y*math.cos(t), 1]
-    p.resetBasePositionAndOrientation(obj, target_pos, [0, 0, 0, 1])
-    return target_pos
-
 # define control function for robot
 def proportional_control(robot_pos, robot_orn, target_pos, gain):
     """Calculate wheel velocities for proportional control."""
-    global hit_time, total_time
-    total_time += 1
+    global hit_time
     # if close enough to target, stop
     if (
         math.sqrt(sum((robot_pos[i] - target_pos[i]) ** 2 for i in range(2)))
@@ -91,40 +77,21 @@ depth_camera_link_index = 31
 
 # run simulation
 time_step = 1 / 120
-gain = 50
+gain = 50 # proportional control gain, or speed
 start_time = time.time()
+keyboard_control = True
+camera_T = 8 # camera update rate
+object_T = 40 # object update rate
 
 while True:
-    # Get the RGB camera's position and orientation
-    rgb_camera_pos, rgb_camera_quat = p.getLinkState(robot, rgb_camera_link_index)[:2]
-
-    # Get the depth camera's position and orientation
-    depth_camera_pos, depth_camera_quat = p.getLinkState(robot, depth_camera_link_index)[:2]
-
-    # Get the camera view matrix for both cameras
-    view_matrix_rgb = p.computeViewMatrix(rgb_camera_pos, rgb_camera_pos + np.array([1, 0, 0]), [0, 0, 1])
-    view_matrix_depth = p.computeViewMatrix(depth_camera_pos, depth_camera_pos + np.array([1, 0, 0]), [0, 0, 1])
-
-    # Get the camera projection matrix
-    projection_matrix = p.computeProjectionMatrixFOV(fov, width / height, near, far)
-
-    # Get the RGB camera image
-    rgb_img = p.getCameraImage(width, height, view_matrix_rgb, projection_matrix)
-
-    # Get the depth camera image
-    depth_img = p.getCameraImage(width, height, view_matrix_depth, projection_matrix, flags=p.ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX)
-
-    # Access the RGB and depth images
-    rgb_data = np.reshape(rgb_img[2], (height, width, 4))[:, :, :3]
-    depth_data = np.reshape(depth_img[3], (height, width))
-
-    # Display the RGB and depth images
-    # p.addUserDebugImage(rgb_data, width, height, rgb_camera_pos, rgb_camera_quat)
-    # p.addUserDebugImage(depth_data, width, height, depth_camera_pos, depth_camera_quat)
+    # update camera
+    total_time += 1
+    if total_time % camera_T == 0:
+        connect_cameras(robot)
 
     # update target
-    elapsed_time = (time.time() - start_time) / 40
-    target_pos = move_object(elapsed_time, target_obj)
+    elapsed_time = (time.time() - start_time) / object_T
+    target_pos = ut.move_object(elapsed_time, target_obj, keyboard_control)
 
     # get robot state and apply control
     robot_pos, robot_orn = p.getBasePositionAndOrientation(robot)
