@@ -14,7 +14,7 @@ p.setGravity(0, 0, -10)
 # load plane, robot, and target
 plane = p.loadURDF("plane.urdf")
 robot = p.loadURDF(
-    "../data/turtlebot/turtlebot.urdf", [0, 0, 0]
+    "../data/turtlebot.urdf", [0, 0, 0]
 )  # or will collide with ground
 target = p.createVisualShape(p.GEOM_SPHERE, radius=0.1, rgbaColor=[1, 0, 0, 1])
 target_obj = p.createMultiBody(
@@ -53,9 +53,11 @@ def proportional_control(robot_pos, robot_orn, target_pos, gain):
 
     # normalize to -pi to pi
     angular_err = math.atan2(math.sin(angular_err), math.cos(angular_err))
+    print(f"angular error: {angular_err}")
     angular_vel = gain * angular_err
 
     # convert to wheel velocities
+    # tend to turn in counter-clockwise direction
     left_force = forward_vel - angular_vel
     right_force = forward_vel + angular_vel
     return left_force, right_force
@@ -70,6 +72,9 @@ p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
 
 dx, dy = 0, 0
 while True:
+    # step simulation
+    p.stepSimulation()
+
     # capture keyboard events
     keys = p.getKeyboardEvents()
     for k, v in keys.items():
@@ -110,6 +115,4 @@ while True:
         robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000
     )
 
-    # step simulation
-    p.stepSimulation()
     time.sleep(time_step)

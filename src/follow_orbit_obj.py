@@ -5,22 +5,27 @@ import math
 import numpy as np
 
 DISTANCE_THRESHOLD = 0.5
+REACH_THRESHOLD = 32 # terminate after 32 seconds of reaching target
+ORBIT_RADIUS_X = 1.5
+ORBIT_RADIUS_Y = 2
 
 # connect to pybullet
-p.connect(p.GUI)
+client = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
-# print("data path: ", pybullet_data.getDataPath())
+print("data path: ", pybullet_data.getDataPath())
 p.setGravity(0, 0, -10)
 
 # load plane, robot, and target
 plane = p.loadURDF("plane.urdf")
 robot = p.loadURDF(
-    "../data/turtlebot/turtlebot.urdf", [0, 0, 0]
+    "../data/turtlebot.urdf", [0, 0, 0], flags=p.URDF_USE_MATERIAL_COLORS_FROM_MTL,
+    physicsClientId=client
 )  # or will collide with ground
-target = p.createVisualShape(p.GEOM_SPHERE, radius=0.1, rgbaColor=[1, 0, 0, 1])
-target_obj = p.createMultiBody(
-    baseMass=0, baseVisualShapeIndex=target, basePosition=[0, 0, 0.1]
-)
+# target = p.createVisualhape(p.GEOM_SPHERE, radius=0.1, rgbaColor=[1, 0, 0, 1])
+target_obj = p.loadURDF("duck_vhacd.urdf", [0, 0, 0.1])
+# target_obj = p.createMultiBody(
+#     baseMass=0, baseVisualShapeIndex=target, basePosition=[0, 0, 0.1]
+# )
 
 # set camera
 p.resetDebugVisualizerCamera(
@@ -33,15 +38,27 @@ for i in range(num_joints):
     joint_info = p.getJointInfo(robot, i)
     print(f"Joint index: {i}, Joint name: {joint_info[1].decode('utf-8')}")
 
+# define criteria for the experiment
+hit_time, total_time = 0, 0
 
-# define control function
+# define moving function for object
+def move_object(t, obj):
+    """Move object along an oval robit over time."""
+    target_pos = [ORBIT_RADIUS_X*math.sin(t), ORBIT_RADIUS_Y*math.cos(t), 1]
+    p.resetBasePositionAndOrientation(obj, target_pos, [0, 0, 0, 1])
+    return target_pos
+
+# define control function for robot
 def proportional_control(robot_pos, robot_orn, target_pos, gain):
     """Calculate wheel velocities for proportional control."""
+    global hit_time, total_time
+    total_time += 1
     # if close enough to target, stop
     if (
         math.sqrt(sum((robot_pos[i] - target_pos[i]) ** 2 for i in range(2)))
         <= DISTANCE_THRESHOLD
     ):
+        hit_time += 1
         return 0, 0
 
     # calculate linear and angular velocity required to reach target
@@ -106,9 +123,8 @@ while True:
     # p.addUserDebugImage(depth_data, width, height, depth_camera_pos, depth_camera_quat)
 
     # update target
-    elapsed_time = (time.time() - start_time) / 32
-    target_pos = [2*math.sin(elapsed_time), 2*math.cos(elapsed_time), 1]
-    p.resetBasePositionAndOrientation(target_obj, target_pos, [0, 0, 0, 1])
+    elapsed_time = (time.time() - start_time) / 40
+    target_pos = move_object(elapsed_time, target_obj)
 
     # get robot state and apply control
     robot_pos, robot_orn = p.getBasePositionAndOrientation(robot)
@@ -117,5 +133,11 @@ while True:
     p.setJointMotorControl2(robot, 1, p.VELOCITY_CONTROL, targetVelocity=right_vel, force=1000)
 
     # step simulation
+    if hit_time >= REACH_THRESHOLD:
+        print(f"After {total_time-REACH_THRESHOLD} timesteps, reached target for {REACH_THRESHOLD} timesteps.")
+        break
     p.stepSimulation()
     time.sleep(time_step)
+
+# close simulation
+p.disconnect()
