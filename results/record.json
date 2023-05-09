@@ -1,4 +1,5 @@
 {
+    "p_status": "GUI",
     "baseline": "After 287 timesteps, reached target for 32 timesteps.",
-    "predictive": "After 279 timesteps, reached target for 32 timesteps."
+    "predictive_10": "After 279 timesteps, reached target for 32 timesteps."
 }
