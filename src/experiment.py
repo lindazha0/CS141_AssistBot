@@ -11,12 +11,12 @@ from kalmanFilter import create_kalman_filter
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32    # terminate after 32 seconds of reaching target
-AGENT = "predictive"    # "baseline" or "predictive"
+AGENT = "baseline"    # "baseline" or "predictive"
 TIME_STEP = 1 / 120
-AHEAD_TIME_STEPS = 5    # for predictive control
+AHEAD_TIME_STEPS = 4    # for predictive control
 KEYBOARD_CONTROL = False
 PRINT_JOINT_INFO = False
-OUTPUT_FILE = "../results/predict_time.csv"
+OUTPUT_FILE = "../results/base_time.csv"
 
 # connect to pybullet
 # p.connect(p.GUI)
@@ -87,8 +87,8 @@ while True:
 
     # step simulation
     if hit_time >= REACH_THRESHOLD:
-        open(OUTPUT_FILE, "a").write(f"{total_time}\n")
-        print(f"After {total_time} timesteps, reached goal of {REACH_THRESHOLD} timesteps.")
+        open(OUTPUT_FILE, "a+").write(f"{total_time}\n")
+        print(f"After {total_time} timesteps, {AGENT} control reached goal of {REACH_THRESHOLD} timesteps.")
         break
     p.stepSimulation()
     time.sleep(TIME_STEP)
