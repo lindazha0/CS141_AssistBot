@@ -23,6 +23,7 @@ def explain_csv():
     plt.show()
     # print(df.shape)
     # print(df.info())
+
     # save box plot
     box.get_figure().savefig(BOX_PLOT)
 
