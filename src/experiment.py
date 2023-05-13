@@ -19,8 +19,8 @@ PRINT_JOINT_INFO = False
 OUTPUT_FILE = "../results/base_time.csv"
 
 # connect to pybullet
-# p.connect(p.GUI)
-p.connect(p.DIRECT)  # for non-graphical version
+p.connect(p.GUI)
+# p.connect(p.DIRECT)  # for non-graphical version
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, -9.87)
 
