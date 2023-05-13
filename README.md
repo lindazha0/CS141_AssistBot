@@ -2,13 +2,12 @@
 This repository is for final project of CS141: Probablistic Robotics at Tufts University, in 2023 Spring term.
 
 The proposal is to build a health-care robot, as a personanl assistant, to do some simple tasks for the elderly or disabled crowds. The robots are developed, trained, and tested in the PyBullet similation platform. The main tasks of the mobile robot are:
-1. Target Following. Reach and closely follow a moving trageted patient.
+1. Target Following. Reach and closely follow a moving trageted patient. Demo video: [Link](https://youtu.be/x0cPFFlWU-A)    
 2. Object Retrieval. Grasp things for the patient.
 
 Both tasks are to be explained separately bellow.
 
 ### Simulation Implementation for Target Following
-Demo video: [Link](https://youtu.be/x0cPFFlWU-A)
 For Target following, here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
 
 **Parameters Configuration**
