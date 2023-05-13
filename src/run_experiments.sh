@@ -1,4 +1,5 @@
 #!/bin/bash
+# run 100 experiments
 
 NUM_LOOPS=50
 

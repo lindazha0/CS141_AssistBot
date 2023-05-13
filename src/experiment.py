@@ -11,9 +11,9 @@ from kalmanFilter import create_kalman_filter
 
 DISTANCE_THRESHOLD = 0.5
 REACH_THRESHOLD = 32    # terminate after 32 seconds of reaching target
-AGENT = "baseline"    # "baseline" or "predictive"
+AGENT = "predictive"    # "baseline" or "predictive"
 TIME_STEP = 1 / 120
-AHEAD_TIME_STEPS = 4    # for predictive control
+AHEAD_TIME_STEPS = 20    # for predictive control
 KEYBOARD_CONTROL = False
 PRINT_JOINT_INFO = False
 OUTPUT_FILE = "../results/base_time.csv"

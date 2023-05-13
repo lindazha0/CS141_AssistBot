@@ -8,7 +8,7 @@ The proposal is to build a health-care robot, as a personanl assistant, to do so
 Both tasks are to be explained separately bellow.
 
 ### Simulation Implementation for Target Following
-
+Demo video: [Link](https://youtu.be/x0cPFFlWU-A)
 For Target following, here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
 
 **Parameters Configuration**

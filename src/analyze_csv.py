@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 # import numpy as np
+# analysis csv files and generate box plot
 
 CSV_DIR = '../results/'
 BOX_PLOT = '../results/box_plot.png'
