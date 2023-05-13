@@ -1,13 +1,16 @@
 # CS141_AssistBot
 This repository is for final project of CS141: Probablistic Robotics at Tufts University, in 2023 Spring term.
 
-The proposal is to build a health-care robot, as a personanl assistant, to do some simple tasks for the elderly or disabled crowds. The robots are developed, trained, and tested in the PyBullet similation platform. The main task of the mobile robot is to follow reach and closely follow a moving traget.
+The proposal is to build a health-care robot, as a personanl assistant, to do some simple tasks for the elderly or disabled crowds. The robots are developed, trained, and tested in the PyBullet similation platform. The main tasks of the mobile robot are:
+1. Target Following. Reach and closely follow a moving trageted patient.
+2. Object Retrieval. Grasp things for the patient.
 
-Here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
+Both tasks are to be explained separately bellow.
 
-While for the Reinforcement Leraning (DQN) for robotic grasping, we will be using the Kuka Robot Environment and applying our knowledge of DQN learning for the agent. Steps to perform the DQN learning can be found in the file `DQN Learning.ipynb`.
+### Simulation Implementation for Target Following
 
-### Simulation Implementation
+For Target following, here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
+
 **Parameters Configuration**
 - Target Object
   -  After loading the plane and TurtleBot as the robot, load the target object with a specified object name or `.urdf` file in `PyBullet_DATA`.
@@ -23,15 +26,16 @@ While for the Reinforcement Leraning (DQN) for robotic grasping, we will be usin
 - The termimating condition is when the robot keeps within `REACH_THRESHOLD` distance to the target for `REACH_THRESHOLD` time seps.
 - Therefore, for the criteria, we use the number of time steps for the robot to reach the terminating goal as the measurement of the robot performance.
 
+### Simulation Implementation for Object Retrieval
+While for the Reinforcement Leraning (DQN) for robotic grasping, we will be using the Kuka Robot Environment and applying our knowledge of DQN learning for the agent. Steps to perform the DQN learning can be found in the file `DQN Learning.ipynb`.
 
 ### Run Experiments
-Run the `experiment.py` under `/src` directory.
+- For target following, run the `experiment.py` under `/src` directory.
 ```bash
 cd src
 python experiment
 ```
-
-Run the `DQN Learning.ipynb` under `/src` directory.  
+- For object retrieval, run the `DQN Learning.ipynb` under `/src` directory.  
 The Juptyer Notebook has been broken down into different sections and information are provided within the Juptye Notebook to explain the purpose of each sections.  
 We would like to thank for the detailed tutorial provided by [PyTorch DQN tutorial](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html) and the post [OpeAI Gym Environments with Pybullet](https://www.etedal.net/2020/04/pybullet-panda_2.html).  
 Note: for the default environemnt, it will take approximately 4 hours to complete. 
