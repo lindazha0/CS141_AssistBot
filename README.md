@@ -5,6 +5,8 @@ The proposal is to build a health-care robot, as a personanl assistant, to do so
 
 Here in the simulation, we use a TurtleBot equiped an RGB camera as well as a depth camera for the robot. For the target, you could use various objects (specified on the top, inside of the file `experiments.py`), but in practive the followed target should be a human.
 
+While for the Reinforcement Leraning (DQN) for robotic grasping, we will be using the Kuka Robot Environment and applying our knowledge of DQN learning for the agent. Steps to perform the DQN learning can be found in the file `DQN Learning.ipynb`.
+
 ### Simulation Implementation
 **Parameters Configuration**
 - Target Object
@@ -22,9 +24,12 @@ Here in the simulation, we use a TurtleBot equiped an RGB camera as well as a de
 - Therefore, for the criteria, we use the number of time steps for the robot to reach the terminating goal as the measurement of the robot performance.
 
 
+
 ### Run Experiments
 Run the `experiment.py` under `/src` directory.
 ```bash
 cd src
 python experiment
 ```
+Run the `DQN Learning.ipynb` `/src` directory.
+For the default environemnt, it will take approximately 4 hours to complete. 
