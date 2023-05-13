@@ -24,12 +24,13 @@ While for the Reinforcement Leraning (DQN) for robotic grasping, we will be usin
 - Therefore, for the criteria, we use the number of time steps for the robot to reach the terminating goal as the measurement of the robot performance.
 
 
-
 ### Run Experiments
 Run the `experiment.py` under `/src` directory.
 ```bash
 cd src
 python experiment
 ```
-Run the `DQN Learning.ipynb` `/src` directory.
-For the default environemnt, it will take approximately 4 hours to complete. 
+Run the `DQN Learning.ipynb` under `/src` directory.  
+The Juptyer Notebook has been broken down into different sections and information are provided within the Juptye Notebook to explain the purpose of each sections.  
+We would like to thank for the detailed instruction and tutorial provided by [PyTorch DQN tutorial](https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html) and the post [OpeAI Gym Environments with Pybullet](https://www.etedal.net/2020/04/pybullet-panda_2.html).  
+Note: for the default environemnt, it will take approximately 4 hours to complete. 
