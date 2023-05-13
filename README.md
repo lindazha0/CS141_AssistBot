@@ -19,8 +19,8 @@ For Target following, here in the simulation, we use a TurtleBot equiped an RGB 
 - Robot Movement
   - In `experiment.py`, `AGENT` specifies using `baseline` or `predictive` motion control.
 - Others(Tuning)
-  - All other capital variables at the top of each file are customizable. However, to better tune the control function, below are recommended for adjusting:
-    - `AHEAD_TIME_STEPS` in `control.py`
+  - All other capital variables at the top of each file are customizable. However, to better tune the control function, below is recommended for adjusting:
+    - `AHEAD_TIME_STEPS` in `experiments.py`
 
 **Terminal Condition**
 - The termimating condition is when the robot keeps within `REACH_THRESHOLD` distance to the target for `REACH_THRESHOLD` time seps.
@@ -33,7 +33,7 @@ While for the Reinforcement Leraning (DQN) for robotic grasping, we will be usin
 - For target following, run the `experiment.py` under `/src` directory.
 ```bash
 cd src
-python experiment
+python experiment.py
 ```
 - For object retrieval, run the `DQN Learning.ipynb` under `/src` directory.  
 The Juptyer Notebook has been broken down into different sections and information are provided within the Juptye Notebook to explain the purpose of each sections.  
